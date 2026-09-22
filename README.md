@@ -24,7 +24,7 @@ Source Data
 
 - Databricks
 - PySpark
-- Spark SQL
+- SQL
 - Delta Lake
 - Python
 - Git / GitHub
