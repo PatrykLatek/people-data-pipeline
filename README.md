@@ -1,69 +1,112 @@
-# People Data Pipeline
+# People Data Pipeline - Databricks
 
-End-to-end data engineering project built in Databricks using PySpark, SQL and Delta Lake.
+This is my Data Engineering portfolio project built in Databricks using employee data.
 
-The pipeline generates synthetic employee data, loads raw data into the Bronze layer, validates and cleans it in Silver, and creates reporting tables in Gold.
+The goal of this project was to build an end-to-end data pipeline and practice working with PySpark, Spark SQL, Delta Lake and the Medallion Architecture.
 
-## Medallion architecture.
+## How the project works
+
+The pipeline starts with synthetic employee data generated in Python.
+
+The general flow is:
+
+Python data generator
+        ↓
+Bronze
+        ↓
+Silver
+        ↓
+Gold
+
+The complete process is orchestrated using a Databricks Job.
+
+## Architecture
+
 ![People Data Pipeline Architecture](docs/architecture.png)
-Source Data
-- Bronze
-- Silver
-- Gold
 
-## Pipeline Flow
+## Data generator
 
-1. Generate synthetic employee data with intentional data quality issues.
-2. Load the raw CSV file into the Bronze layer.
-3. Validate, clean and deduplicate the data in the Silver layer.
-4. Split records into clean, rejected and excluded datasets.
-5. Create reporting tables in the Gold layer.
-6. Run the full process using a Databricks Job.
+`notebooks/generator.ipynb`
 
-## Tech Stack
+The generator creates synthetic employee data and intentionally includes some data quality issues.
 
-- Databricks
-- PySpark
-- SQL
-- Delta Lake
-- Python
-- Git / GitHub
-
-
-## Data Quality Checks
-
-The Silver layer checks for:
+Examples include:
 
 - invalid salary values
-- invalid employee status
-- missing country
-- missing or invalid email
-- missing or invalid hire date
+- missing countries
+- unknown employee statuses
+- missing or invalid emails
+- invalid hire dates
 - duplicate employee IDs
 
+These errors are later detected in the Silver layer.
 
-## Silver Outputs
+## Bronze
 
-The validated data is split into three Delta tables:
+`notebooks/bronze_ingestion.ipynb`
 
-- `employees_clean` - valid records used for reporting
-- `employees_rejected` - records with data quality issues
-- `employees_excluded` - older duplicate records
+The Bronze layer loads the raw source data and stores it as a Delta table.
 
+At this stage the source data is kept mostly unchanged.
+
+## Silver
+
+`notebooks/silver_validation.ipynb`
+
+The Silver layer is responsible for cleaning and validating the data.
+
+It includes:
+
+- type casting
+- date parsing
+- data quality checks
+- duplicate detection
+- deduplication using Window functions
+- reconciliation checks
+
+After validation, records are split into:
+
+- `employees_clean`
+- `employees_rejected`
+- `employees_excluded`
 
 ## Gold
 
-The Gold layer creates business-ready summary tables:
+`notebooks/gold_reporting.ipynb`
 
-- `department_summary` - employee count and average salary by department
-- `country_summary` - employee count and average salary by country
-- `employment_type_summary` - employee count and average salary by employment type
-- `status_summary` - employee count and percentage by status
-- `hiring_summary` - employee count by hire year
+The Gold layer uses the clean Silver data to create reporting tables.
 
+The project includes:
+
+- `department_summary`
+- `country_summary`
+- `employment_type_summary`
+- `status_summary`
+- `hiring_summary`
+
+These tables contain aggregated employee information for reporting and analysis.
 
 ## Orchestration
 
-The full pipeline is orchestrated using a Databricks Job with the following task flow:
+The full pipeline is run using a Databricks Job.
 
-generate_source_data - bronze_ingestion - silver_validation - gold_reporting
+The task flow is:
+
+generator
+    ↓
+bronze_ingestion
+    ↓
+silver_validation
+    ↓
+gold_reporting
+
+Each stage runs after the previous stage completes successfully.
+
+## Technologies used
+
+Python, PySpark, Spark SQL, Databricks, Delta Lake, Git and GitHub.
+
+---
+
+Patryk Latek  
+Junior Data Engineer portfolio project
